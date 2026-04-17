@@ -2,6 +2,15 @@
 
 Profesyonel okuma hızı eğitim platformu.
 
+> Canlı demo: https://fastreadunderstand.web.app/
+
+---
+
+## 🌐 Canlı Demo
+
+- Site yayında: [https://fastreadunderstand.web.app/](https://fastreadunderstand.web.app/)
+- Bu bağlantı üzerinden uygulamayı doğrudan ziyaret edebilir ve test edebilirsiniz.
+
 ---
 
 ## 🚀 Projeyi GitHub’a Yükleme
@@ -88,7 +97,23 @@ src/
 
 ---
 
-## 🛡️ Dikkat Edilmesi Gerekenler
+## �️ Ekran Görüntüleri
+
+Aşağıdaki ekran görüntüleri uygulamanın temel bölümlerini gösterir:
+
+![Ana Ekran](Screens/1.png)
+
+![Ders Modülü](Screens/2.png)
+
+![Sosyal Bölüm](Screens/3.png)
+
+![Ayarlar ve İlerleme](Screens/4.png)
+
+Daha fazla görsel için `Screens/` klasörüne bakabilirsiniz.
+
+---
+
+## �🛡️ Dikkat Edilmesi Gerekenler
 
 - Firebase config bilgilerini, `apiKey` ve `projectId` dahil, asla GitHub’a açık şekilde yükleme.
 - `.env.example` bir şablondur; gerçek verileri bu dosyada tutma.
