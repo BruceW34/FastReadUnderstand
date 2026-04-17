@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "jsx": "react-jsx",
+    
+    // ✅ STRICT MODE - GRADUAL ENABLEMENT
+    // Production quality type checking
+    "strict": true,                        // ✅ Enable all strict checks
+    "noImplicitAny": true,                 // ❌ No 'any' without explicit type
+    "strictNullChecks": true,              // ❌ Null/undefined must be handled
+    "strictFunctionTypes": true,           // ✅ Strict function parameter types
+    "strictBindCallApply": true,           // ✅ Strict bind/call/apply
+    "strictPropertyInitialization": true, // ✅ Class properties must initialize
+    "noImplicitThis": true,                // ❌ 'this' must have explicit type
+    
+    // ADDITIONAL SAFETY CHECKS
+    "alwaysStrict": true,                  // ✅ Use 'use strict'
+    "noUnusedLocals": true,                // ❌ Unused variables
+    "noUnusedParameters": true,            // ❌ Unused function parameters
+    "noImplicitReturns": true,             // ❌ Must return from all code paths
+    "noFallthroughCasesInSwitch": true,   // ❌ Switch case fallthrough
+    
+    // COMPATIBILITY
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": ["vite/client"],
+    
+    // PATH ALIASES
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
+
+

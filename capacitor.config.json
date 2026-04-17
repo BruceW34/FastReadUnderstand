@@ -1,0 +1,8 @@
+{
+  "appId": "com.fastread.app",
+  "appName": "FastRead",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

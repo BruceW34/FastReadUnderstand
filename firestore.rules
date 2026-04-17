@@ -1,0 +1,179 @@
+
+// ✅ FIRESTORE SECURITY RULES - PRODUCTION READY
+// Firebase Console -> Rules sekmesine kopyala
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ========================================
+    // Yardımcı Functions
+    // ========================================
+    
+    // Current user'ın token'ı var mı ve verified mi?
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Current user'ın belirli user doc'ından bahsedip bahsetmediğini kontrol et
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Admin mı kontrol et (Firestore custom claim)
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+    
+    // Belirli bir user'ın veya admin'in yazma izni var mı?
+    function canWrite(userId) {
+      return isUser(userId) || isAdmin();
+    }
+    
+    // ========================================
+    // USERS Collection - Profil Data
+    // ========================================
+    match /users/{userId} {
+      // ✅ OKUMA: Kendi profilini veya public verisi okuya
+      allow read: if isUser(userId) || 
+                     (isAuthenticated() && !resource.data.private) ||
+                     isAdmin();
+      
+      // ✅ YAZMA: Sadece kendi profili yazar, admin override
+      allow write: if canWrite(userId);
+      
+      // Nested subcollections
+      match /achievements/{document=**} {
+        allow read: if isUser(userId) || isAdmin();
+        allow write: if isUser(userId) || isAdmin();
+      }
+      
+      match /statistics/{document=**} {
+        allow read: if isUser(userId) || isAdmin();
+        allow write: if isUser(userId) || isAdmin();
+      }
+    }
+    
+    // ========================================
+    // DUELS (Competitive Matches)
+    // ========================================
+    match /duels/{duelId} {
+      // ✅ OKUMA: Bu duelün oyuncuları veya admin
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == resource.data.player1 ||
+                      request.auth.uid == resource.data.player2 ||
+                      isAdmin());
+      
+      // ✅ YAZMA: Sadece bu duelde olanlar veya admin
+      allow write: if (isAuthenticated() &&
+                       (request.auth.uid == resource.data.player1 ||
+                        request.auth.uid == resource.data.player2)) ||
+                      isAdmin();
+      
+      // Duel round'ları
+      match /rounds/{roundId} {
+        allow read: if parent.read;
+        allow write: if parent.write;
+      }
+    }
+    
+    // ========================================
+    // LEAGUES (Competitive Rankings)
+    // ========================================
+    match /leagues/{leagueId} {
+      // ✅ OKUMA: Public reading (leaderboard)
+      allow read: if isAuthenticated();
+      
+      // ✅ YAZMA: Sadece admin (system updates)
+      allow write: if isAdmin();
+      
+      match /members/{userId} {
+        allow read: if isAuthenticated();
+        allow write: if isAdmin();
+      }
+    }
+    
+    // ========================================
+    // QUESTS (Co-op Missions)
+    // ========================================
+    match /quests/{questId} {
+      // ✅ OKUMA: Authenticated users
+      allow read: if isAuthenticated();
+      
+      // ✅ YAZMA: Sadece admin
+      allow write: if isAdmin();
+      
+      match /teams/{teamId} {
+        allow read: if isAuthenticated() && 
+                       request.auth.uid in resource.data.members;
+        allow write: if isAuthenticated() &&
+                       request.auth.uid in resource.data.members;
+      }
+    }
+    
+    // ========================================
+    // TEXTS (Reading Library)
+    // ========================================
+    match /texts/{textId} {
+      // ✅ OKUMA: Herkes okuyabilir (public content)
+      allow read: if isAuthenticated();
+      
+      // ✅ YAZMA: Sadece owner veya admin
+      allow write: if isUser(resource.data.createdBy) || isAdmin();
+      
+      // User custom texts
+      match /custom/{customTextId} {
+        allow read: if isUser(resource.data.userId) || isAdmin();
+        allow write: if isUser(resource.data.userId) || isAdmin();
+      }
+    }
+    
+    // ========================================
+    // ADMIN Collections (System Config)
+    // ========================================
+    match /admin/{document=**} {
+      // ✅ OKUMA: Sadece admin (system configuration)
+      allow read: if isAdmin();
+      
+      // ✅ YAZMA: Sadece admin
+      allow write: if isAdmin();
+    }
+    
+    // ========================================
+    // ANALYTICS (Analytics Events)
+    // ========================================
+    match /analytics/{userId}/{document=**} {
+      // ✅ OKUMA: User kendi analytics'ini, admin tümünü okur
+      allow read: if isUser(userId) || isAdmin();
+      
+      // ✅ YAZMA: User kendi analytics'ini yazar
+      allow write: if isUser(userId);
+    }
+    
+    // ========================================
+    // RATE LIMITING (Anti-spam)
+    // ========================================
+    match /rateLimits/{userId} {
+      // ✅ OKUMA: User kendisinin ratelimit bilgisini okur
+      allow read: if isUser(userId);
+      
+      // ✅ YAZMA: System functions tarafından yazılır (Cloud Functions)
+      allow write: if false; // Cloud Functions tarafından server-side yazılır
+    }
+    
+    // ========================================
+    // FRIENDS (Social Features)
+    // ========================================
+    match /friends/{userId}/connections/{friendId} {
+      allow read: if isUser(userId) || isAdmin();
+      allow write: if isUser(userId) || isAdmin();
+    }
+    
+    // ========================================
+    // DEFAULT: Deny everything else
+    // ========================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

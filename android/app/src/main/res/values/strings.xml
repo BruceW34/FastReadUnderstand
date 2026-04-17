@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FastRead</string>
+    <string name="title_activity_main">FastRead</string>
+    <string name="package_name">com.fastread.app</string>
+    <string name="custom_url_scheme">com.fastread.app</string>
+</resources>
